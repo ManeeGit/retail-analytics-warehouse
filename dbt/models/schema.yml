@@ -1,0 +1,45 @@
+version: 2
+models:
+  - name: stg_lines
+    columns:
+      - name: source_row_id
+        data_tests: [unique, not_null]
+  - name: dim_customer
+    columns:
+      - name: customer_key
+        data_tests: [unique, not_null]
+  - name: dim_product
+    columns:
+      - name: product_key
+        data_tests: [unique, not_null]
+  - name: dim_date
+    columns:
+      - name: date_key
+        data_tests: [unique, not_null]
+  - name: fct_invoice_line
+    columns:
+      - name: invoice_line_key
+        data_tests: [unique, not_null]
+      - name: customer_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_key
+      - name: product_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_product')
+                field: product_key
+      - name: date_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: net_amount
+        data_tests: [not_null]
