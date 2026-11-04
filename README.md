@@ -16,7 +16,7 @@ python -m pip install --no-deps -e .
 make demo
 ```
 
-`requirements.lock` pins the dependency versions. To intentionally upgrade them, regenerate with `uv pip compile pyproject.toml --extra dev --universal --output-file requirements.lock` and rerun verification.
+`requirements.lock` pins the dependency versions. To intentionally upgrade them, regenerate with `uv pip compile pyproject.toml --extra dev --universal --python-version 3.11 --output-file requirements.lock` and rerun verification. The explicit minimum Python version prevents the resolver from silently targeting only the interpreter used to generate the lock.
 
 `make demo` creates deterministic fixtures, ingests and publishes the initial batch, adds an older late-arriving invoice, and publishes again. Expected results:
 

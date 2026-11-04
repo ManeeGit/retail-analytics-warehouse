@@ -1,13 +1,16 @@
 # Verification record
 
-Verified in the cloud Linux workspace on 2026-11-04 using Python 3.12.14.
-This records local results, not a claim that remote GitHub Actions has run.
+Verified in the cloud Linux workspace on 2026-11-04 using Python 3.11.17 and
+3.12.14. The records below are local results. A hosted CI dependency failure
+identified a lock-generation bug, corrected and retested locally as described
+below; the hosted rerun must be checked separately.
 
 | Check | Result |
 |---|---|
 | `ruff check .` | Passed |
 | `python -m compileall -q src tests` | Passed |
-| `pytest -q` | 44 passed, 106.43 seconds in this environment |
+| `pytest -q` on Python 3.11.17 | 44 passed, 89.96 seconds |
+| `pytest -q` on Python 3.12.14 | 44 passed, 125.48 seconds |
 | `make demo` | Passed; final fact count 14 and net sales 43.97 |
 | `retail verify` | Passed for the demo's current release |
 | Real dbt build | 8 models succeeded; 21 data tests passed |
@@ -27,7 +30,21 @@ The three focused integrity/date integration regressions also passed separately.
 unit test substitutes a candidate builder; integration tests execute actual dbt.
 
 Not verified here: execution on a physical 8 GB Mac, the complete external UCI
-dataset, Python 3.11, power-loss durability, network filesystems, distributed
-writers, or a published GitHub Actions run. The CI definition targets Python 3.11
+dataset, power-loss durability, network filesystems, distributed
+writers, or a successful hosted GitHub Actions rerun after this lock fix. The CI definition targets Python 3.11
 and 3.12; inspect its remote result after publishing. The dependency lock records
 the resolved package versions used by these checks.
+
+
+## Dependency compatibility correction
+
+The first hosted Python 3.11 job failed during installation because the lock had
+selected NetworkX 3.7, which requires Python 3.12. The original universal lock
+command had implicitly targeted the local Python 3.12 interpreter. Regeneration
+now explicitly uses `--python-version 3.11`, producing NetworkX 3.6.1 for Python
+versions below 3.12 and NetworkX 3.7 for 3.12 and above.
+
+The corrected lock was installed in an isolated Python 3.11.17 environment and
+the existing Python 3.12.14 environment. Both passed Ruff and all 44 tests,
+including real dbt integration builds. The CI matrix uses `fail-fast: false` so
+one failing interpreter no longer prevents the other result from completing.
